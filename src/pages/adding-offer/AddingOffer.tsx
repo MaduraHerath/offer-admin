@@ -3,18 +3,17 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
 
+interface FormData {
+  title: string;
+  description: string;
+  expireDate: string;
+  tags: string;
+  category: string;
+  country: string;
+  image: any;
+  promotionUrl: string;
+}
 function AddingOffer() {
   const { register, handleSubmit,reset  } = useForm();
 
@@ -34,7 +33,7 @@ function AddingOffer() {
       reader.readAsDataURL(file);
     }
   };
-  const onSubmit = async (data) => {
+  const onSubmit = async (data : FormData) => {
     const formData = new FormData();
     console.log("data",data)
     formData.append("title", data.title);
