@@ -1,6 +1,6 @@
 import { Container, Button, styled, Card, CardContent, Typography, TextField, IconButton, MenuItem, Select } from "@mui/material";
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 
@@ -17,23 +17,24 @@ interface FormData {
 function AddingOffer() {
   const { register, handleSubmit,reset  } = useForm();
 
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
 
   const removeImagePreview = () => {
-    setImagePreview(null);
+    setImagePreview("");
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setImagePreview(reader.result);
+        setImagePreview(reader?.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
-  const onSubmit = async (data : FormData) => {
+  
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     const formData = new FormData();
     console.log("data",data)
     formData.append("title", data.title);
@@ -45,7 +46,7 @@ function AddingOffer() {
 
     formData.append("file", data.image[0]);
 
-    formData.append("promotionUrl", data.promotionLink);
+    formData.append("promotionUrl", data.promotionUrl);
 
     const res = await fetch("https://my-offers-backend.onrender.com/api/offer/create-offer", {
       method: "POST",
