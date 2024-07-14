@@ -1,8 +1,27 @@
-import { Container, Button, styled, Card, CardContent, Typography, TextField, IconButton, MenuItem, Select } from "@mui/material";
-import React, { useState } from "react";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { Container, Button, Card, CardContent, TextField, IconButton, MenuItem, Select, InputLabel, FormControl } from "@mui/material";
+import type React from "react";
+import { useState, useEffect } from "react";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import type { SubmitHandler, FieldValues } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { RestEndPoints } from "../../enums/rest-endpoints.enums";
 
+const requestURL = 'https://my-offers-backend.onrender.com';
+
+interface Subcategory {
+  icon: string,
+  iconType: string,
+  id: number,
+  title: string
+}
+
+interface Category {
+  name: string,
+  subCategoryList: Subcategory[]
+  id: number,
+  priority: number,
+  documentId: string
+}
 
 interface FormData {
   title: string;
@@ -10,18 +29,52 @@ interface FormData {
   expireDate: string;
   tags: string;
   category: string;
+  subCategory: string;
   country: string;
   image: any;
   promotionUrl: string;
 }
+
 function AddingOffer() {
-  const { register, handleSubmit,reset  } = useForm();
+  const { register, handleSubmit, reset  } = useForm<FormData>();
+  const [ categories, setCategories ] = useState<Category[]>([]);
+  const [ subCategories, setSubCategories ] = useState<Subcategory[]>([]);
+  const [ isDisabled , setIsDisabled ] = useState(false);
 
   const [imagePreview, setImagePreview] = useState<string>("");
 
   const removeImagePreview = () => {
     setImagePreview("");
   };
+
+  const resetForm = () => {
+    reset();
+    removeImagePreview();
+  }
+
+  useEffect(() => {
+    fetchAllCategories();
+  }, []);
+
+  const fetchAllCategories = async () => {
+    try {
+        const response = await fetch(`${requestURL}${RestEndPoints.GetAllCategories}`, {
+            method: "GET",
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(`${data.error}`);
+        }
+        if (data) {
+            setCategories(data);
+            const allSubCategories = data.flatMap((category: Category) => category.subCategoryList);
+            setSubCategories(allSubCategories);
+        }
+    } catch (error) {
+      alert(`Error fetching categories: ${error}`);
+    }
+  };
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,27 +88,38 @@ function AddingOffer() {
   };
   
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    setIsDisabled(true);
     const formData = new FormData();
-    console.log("data",data)
+  
+    // Append form data
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("expireDate", data.expireDate);
-    formData.append("tags", `[${data.tags.split(",").map((word: any) => `"${word}"`)}]`);
+    formData.append("tags", JSON.stringify(data.tags.split(",").map((word: string) => word.trim())));
     formData.append("category", data.category);
     formData.append("country", data.country);
-
     formData.append("file", data.image[0]);
-
     formData.append("promotionUrl", data.promotionUrl);
-
-    const res = await fetch("https://my-offers-backend.onrender.com/api/offer/create-offer", {
-      method: "POST",
-      body: formData,
-      headers: {
-        // No need to set 'Content-Type' header when using FormData
+  
+    try {
+      const response = await fetch(`${requestURL}${RestEndPoints.CreateOffer}`, {
+        method: "POST",
+        body: formData,
+      });
+      
+      const result = await response.json();
+  
+      if (response.ok && result?._path?.segments[1]) {
+        alert('Success');
+      } else {
+        alert(`Operation failed: ${result.error}`);
       }
-    }).then((res) => res.json());
-    alert(JSON.stringify(`${res.message}, status: ${res.status}`));
+    } catch (error) {
+      alert(`Request failed: ${error}`);
+    } finally {
+      resetForm();
+      setIsDisabled(false);
+    }
   };
 
   return (
@@ -67,23 +131,45 @@ function AddingOffer() {
             <TextField id="description" label="Description" multiline rows={4} {...register("description")}  />
             <TextField id="expireDate" label="Expire Date" type="date" InputLabelProps={{ shrink: true }} {...register("expireDate")} required />
             <TextField id="tags" label="Tags" {...register("tags")} required />
-            <TextField id="category" label="Category" type="number" {...register("category")} required />
-            <TextField id="promotionLink" label="Promotion Link" {...register("promotionLink")} required />
-            <Select id="country" label="Country" {...register("country")} defaultValue="" required>
-              <MenuItem value="SL">Sri Lanka</MenuItem>
-              <MenuItem value="emirates">Emirates</MenuItem>
-            </Select>
+            <FormControl>
+              <InputLabel id="category-label">Categories</InputLabel>
+              <Select id="category" labelId="category-label" label="Categories" {...register("category")} required>
+                {
+                  categories && categories.map((category, index) => 
+                    <MenuItem key={index} value={category.id}>{category.name}</MenuItem>
+                  )
+                }
+              </Select>
+            </FormControl>
+            <FormControl>
+              <InputLabel id="sub-category-label">Sub Categories</InputLabel>
+              <Select id="sub-category" labelId="sub-category-label" label="Sub Categories" {...register("subCategory")} required>
+                {
+                  subCategories && subCategories.map((subCategory, index) => 
+                    <MenuItem key={index} value={subCategory.id}>{subCategory.title}</MenuItem>
+                  )
+                }
+              </Select>
+            </FormControl>
+            <TextField id="promotionUrl" label="Promotion Link" {...register("promotionUrl")} required />
+            <FormControl>
+              <InputLabel id="country-label">Countries</InputLabel>
+              <Select id="country" labelId="country-label" label="Countries" {...register("country")} defaultValue="LK" required>
+                <MenuItem value="LK">Sri Lanka</MenuItem>
+                <MenuItem value="emirates">Emirates</MenuItem>
+              </Select>
+            </FormControl>
             <input type="file" id="image" {...register("image")} onChange={handleImageChange} required />
             {imagePreview && (
               <div>
-                <img src={imagePreview} alt="Image Preview" style={{ maxWidth: '100%', marginTop: '16px' }} />
+                <img src={imagePreview} alt="" style={{ maxWidth: '100%', marginTop: '16px' }} />
                 <IconButton color="error" aria-label="remove image" onClick={removeImagePreview}>
                   <HighlightOffIcon />
                 </IconButton><div>Remove the Image</div>
               </div>
             )}
-            <Button variant="contained" type="submit">Submit</Button>
-            <Button variant="contained"  onClick={()=> reset()} color="secondary">Reset</Button>
+            <Button disabled={isDisabled} variant="contained" type="submit">Submit</Button>
+            <Button disabled={isDisabled} variant="contained"  onClick={resetForm} color="secondary">Reset</Button>
           </form>
         </CardContent>
       </Card>
