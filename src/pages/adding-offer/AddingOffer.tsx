@@ -3,7 +3,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import type { SubmitHandler, FieldValues } from "react-hook-form";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { RestEndPoints } from "../../enums/rest-endpoints.enums";
 
 const requestURL = 'https://my-offers-backend.onrender.com';
@@ -18,7 +18,7 @@ interface Subcategory {
 interface Category {
   name: string,
   subCategoryList: Subcategory[]
-  id: number,
+  id: string,
   priority: number,
   documentId: string
 }
@@ -36,7 +36,7 @@ interface FormData {
 }
 
 function AddingOffer() {
-  const { register, handleSubmit, reset  } = useForm<FormData>();
+  const { register, handleSubmit, reset, control } = useForm<FormData>();
   const [ categories, setCategories ] = useState<Category[]>([]);
   const [ subCategories, setSubCategories ] = useState<Subcategory[]>([]);
   const [ isDisabled , setIsDisabled ] = useState(false);
@@ -97,6 +97,7 @@ function AddingOffer() {
     formData.append("expireDate", data.expireDate);
     formData.append("tags", JSON.stringify(data.tags.split(",").map((word: string) => word.trim())));
     formData.append("category", data.category);
+    formData.append("subCategory", data.subCategory);
     formData.append("country", data.country);
     formData.append("file", data.image[0]);
     formData.append("promotionUrl", data.promotionUrl);
@@ -122,6 +123,16 @@ function AddingOffer() {
     }
   };
 
+  const handleCategoryChange = (event: any) => {
+    if (event) {
+      const categoryId = event.target.value as string;
+      const category = categories.find(category => category.id === categoryId);
+      if (category) {
+        setSubCategories(category.subCategoryList);
+      }
+    }
+  }
+
   return (
     <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
       <Card variant="outlined" sx={{ boxShadow: 3, padding: 2, maxWidth: 'auto', margin: 'auto' }}>
@@ -133,13 +144,20 @@ function AddingOffer() {
             <TextField id="tags" label="Tags" {...register("tags")} required />
             <FormControl>
               <InputLabel id="category-label">Categories</InputLabel>
-              <Select id="category" labelId="category-label" label="Categories" {...register("category")} required>
-                {
-                  categories && categories.map((category, index) => 
-                    <MenuItem key={index} value={category.id}>{category.name}</MenuItem>
-                  )
-                }
-              </Select>
+              <Controller name="category" control={control} render={({ field }) => (
+                  <Select {...field} labelId="category-label" label="Categories"
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleCategoryChange(e);
+                    }} required>
+                      {categories.map((category, index) => (
+                        <MenuItem key={index} value={category.id}>
+                          {category.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                )}
+              />
             </FormControl>
             <FormControl>
               <InputLabel id="sub-category-label">Sub Categories</InputLabel>
