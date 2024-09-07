@@ -6,7 +6,7 @@ import type { SubmitHandler, FieldValues } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
 import { RestEndPoints } from "../../enums/rest-endpoints.enums";
 
-const requestURL = 'https://my-offers-backend.onrender.com';
+const requestURL = 'https://meta-mydoc-backend.xyz';
 
 interface Subcategory {
   icon: string,
