@@ -110,14 +110,17 @@ const OfferList = () => {
             )}
             
             <p>Valid until: {formatDate(offer.expireDate?._seconds)}</p>
-            {offer.tags}
 
-            {/* {
-              offer.tags.map((tag: any) => (
-
-              ))
-
-            } */}
+            {offer.tags && offer.tags.length > 0 && (
+              <div className="tags-section">
+                {offer.tags.map((tag: any, index: any) => (
+                  <span key={index} className="tag">
+                    {tag + '-'}
+                  </span>
+                ))}
+              </div>
+            )}
+            
           </li>
         ))}
       </ul>
