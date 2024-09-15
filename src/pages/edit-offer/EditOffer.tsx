@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TextField, Button, Container, Grid, Typography, Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
@@ -10,7 +10,20 @@ const EditOffer = () => {
   }
     );
   const [ categories, setCategories ] = useState(state.categories);
+  const [selectedCategory, setSelectedCategory] = useState(editedOffer.category || ''); // Selected category ID
+  const [selectedSubCategory, setSelectedSubCategory] = useState(editedOffer.subCategory || ''); // Selected subcategory ID
+  const [subCategories, setSubCategories] = useState([]); // Subcategories for the selected category
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Load relevant subcategories when a category is selected
+    const category = categories.find((cat: any) => cat.id === selectedCategory);
+    if (category) {
+      setSubCategories(category.subCategoryList || []);
+    } else {
+      setSubCategories([]); // Reset if no category is selected
+    }
+  }, [selectedCategory]);
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -30,13 +43,18 @@ const EditOffer = () => {
   };
 
   const handleUpdateOffer = async () => {
+    const updatedOffer = {
+        ...editedOffer,
+        tags: editedOffer.tags.split(','), // Convert comma-separated string to array
+        expireDate: new Date(editedOffer?.expireDate?._seconds * 1000).toISOString().split('T')[0]
+    };
     try {
-      const response = await fetch(`https://api.example.com/offers/${editedOffer.id}`, {
+      const response = await fetch(`http://localhost:80/api/offer/update-offer?id=${editedOffer.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editedOffer),
+        body: JSON.stringify(updatedOffer),
       });
       if (!response.ok) {
         throw new Error('Failed to update offer');
@@ -53,9 +71,20 @@ const EditOffer = () => {
   };
 
   const handleCategoryChange = (e: any) => {
+    const categoryId = e.target.value;
+    setSelectedCategory(categoryId);
     setEditedOffer({
       ...editedOffer,
       category: e.target.value,
+      subCategory: ''
+    });
+  };
+
+  const handleSubCategoryChange = (e: any) => {
+    setSelectedSubCategory(e.target.value);
+    setEditedOffer({
+      ...editedOffer,
+      subCategory: e.target.value,
     });
   };
 
@@ -99,18 +128,40 @@ const EditOffer = () => {
                         labelId="category-label"
                         id="category"
                         name="category"
-                        value={editedOffer.category || ''}
+                        value={selectedCategory}
                         onChange={handleCategoryChange}
                         label="Category"
                     >
                         {categories.map((category: any) => (
-                        <MenuItem key={category.id} value={category.id}>
-                            {category.name}
-                        </MenuItem>
+                            <MenuItem key={category.id} value={category.id}>
+                                {category.name}
+                            </MenuItem>
                         ))}
                     </Select>
                     </FormControl>
                 </Grid>
+
+                {subCategories.length > 0 && (
+                    <Grid item xs={12}>
+                    <FormControl fullWidth variant="outlined">
+                        <InputLabel id="subcategory-label">Subcategory</InputLabel>
+                        <Select
+                            labelId="subcategory-label"
+                            id="subcategory"
+                            name="subcategory"
+                            value={selectedSubCategory}
+                            onChange={handleSubCategoryChange}
+                            label="Subcategory"
+                        >
+                            {subCategories.map((subCategory: any) => (
+                                <MenuItem key={subCategory.id} value={subCategory.id}>
+                                    {subCategory.title}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    </Grid>
+                )}
 
                 <Grid item xs={12}>
                     <TextField
