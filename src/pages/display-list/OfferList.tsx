@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const OfferList = () => {
   const [offers, setOffers] = useState([]);  // To store fetched offers
@@ -6,6 +7,8 @@ const OfferList = () => {
   const [error, setError] = useState(null);  // Error state
   const [category, setCategory] = useState('');  // Selected category state
   const [categories, setCategories] = useState([]);  // List of categories
+
+  const navigate = useNavigate();
 
   // Function to fetch offers based on selected category
   const fetchOffers = async (selectedCategory = '') => {
@@ -56,6 +59,10 @@ const OfferList = () => {
   // Handle category change
   const handleCategoryChange = (e: any) => {
     setCategory(e.target.value);  // Update selected category
+  };
+
+  const handleEditClick = (offer: any, categories: any) => {
+    navigate(`/edit/${offer.id}`, { state: { offer, categories } });  // Navigate to EditOffer page with offer data
   };
 
   // Render loading, error, or the offer list
@@ -120,6 +127,8 @@ const OfferList = () => {
                 ))}
               </div>
             )}
+
+            <button onClick={() => handleEditClick(offer, categories)}>Edit</button>
             
           </li>
         ))}
