@@ -5,6 +5,7 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import type { SubmitHandler, FieldValues } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
 import { RestEndPoints } from "../../enums/rest-endpoints.enums";
+import { useNavigate } from 'react-router-dom';
 
 const requestURL = 'http://localhost:80';
 
@@ -42,6 +43,7 @@ function AddingOffer() {
   const [ isDisabled , setIsDisabled ] = useState(false);
 
   const [imagePreview, setImagePreview] = useState<string>("");
+  const navigate = useNavigate();
 
   const removeImagePreview = () => {
     setImagePreview("");
@@ -188,6 +190,7 @@ function AddingOffer() {
             )}
             <Button disabled={isDisabled} variant="contained" type="submit">Submit</Button>
             <Button disabled={isDisabled} variant="contained"  onClick={resetForm} color="secondary">Reset</Button>
+            <Button disabled={isDisabled} variant="contained"  onClick={() => navigate('/')} color="secondary">Go to Home</Button>
           </form>
         </CardContent>
       </Card>

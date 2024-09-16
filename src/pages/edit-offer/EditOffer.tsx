@@ -91,9 +91,18 @@ const EditOffer = () => {
   return (
     <Container maxWidth="sm">
         <Box sx={{ mt: 4, mb: 2 }}>
-            <Typography variant="h4" align="center">
-                Edit Offer
-            </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h4">
+                    Edit Offer
+                </Typography>
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={() => navigate('/')}
+                >
+                    Go to Home
+                </Button>
+            </Box>
         </Box>
         <Box component="form" noValidate autoComplete="off">
             <Grid container spacing={2}>

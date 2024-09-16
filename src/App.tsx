@@ -6,14 +6,16 @@ import logo from "./logo.svg"
 import AddingOffer from "./pages/adding-offer/AddingOffer"
 import OfferList from "./pages/display-list/OfferList"
 import EditOffer from "./pages/edit-offer/EditOffer"
+import HomePage from "./pages/home-page/HomePage"
 
 const App = () => {
   return (
     <BrowserRouter>
 		<Routes>
-			<Route path="/" element={<AddingOffer />} />
-			<Route path="/offers" element={<OfferList />} />
+			<Route path="/" element={<HomePage />} />
+			<Route path="/view-offers" element={<OfferList />} />
 			<Route path="/edit/:id" element={<EditOffer />} />
+			<Route path="/create-offer" element={<AddingOffer />} />
 			{/* <Route path="users/:id" element={<Users />} /> */}
 		</Routes>
 	</BrowserRouter>

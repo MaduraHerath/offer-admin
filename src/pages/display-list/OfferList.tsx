@@ -1,3 +1,4 @@
+import { Box, Button } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,8 +22,6 @@ const OfferList = () => {
         throw new Error('Failed to fetch offers');
       }
       const data = await response.json();
-      console.log('offers list');
-      console.log(data);
       setOffers(data);  // Update state with fetched data
     } catch (err) {
     //   setError(err.message);  // Set error if API call fails
@@ -39,7 +38,6 @@ const OfferList = () => {
         throw new Error('Failed to fetch categories');
       }
       const data = await response.json();
-      console.log(data);
 
       setCategories(data);  // Set the categories in state
     } catch (err) {
@@ -81,7 +79,12 @@ const OfferList = () => {
 
   return (
     <div>
-      <h1>Available Offers</h1>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <h1>Available Offers</h1>
+        <Button variant="contained" color="primary" onClick={() => navigate('/')}>
+          Go to Home
+        </Button>
+      </Box>
 
       {/* Category filter dropdown */}
       <div>
