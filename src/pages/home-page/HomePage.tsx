@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { Box, Typography, Card, CardActionArea } from '@mui/material';
+import packageJson from '../../../package.json';
 // import CreateOffer from './CreateOffer';  // Assuming CreateOffer component exists
 // import ViewOffers from './ViewOffers';    // Assuming ViewOffers component exists
 
@@ -49,6 +50,9 @@ const HomePage = () => {
           </Box>
         </CardActionArea>
       </Card>
+      <Typography variant="caption" sx={{ mt: 2 }}>
+        Version: {packageJson.version}
+      </Typography>
     </Box>
   );
 };
