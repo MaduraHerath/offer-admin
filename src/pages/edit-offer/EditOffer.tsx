@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TextField, Button, Container, Grid, Typography, Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import config from '../../config/config';
+
+const requestURL = config.apiUrl;
 
 const EditOffer = () => {
   const { state } = useLocation();  // Access passed offer data from state
@@ -49,7 +52,7 @@ const EditOffer = () => {
         expireDate: new Date(editedOffer?.expireDate?._seconds * 1000).toISOString().split('T')[0]
     };
     try {
-      const response = await fetch(`http://localhost:80/api/offer/update-offer?id=${editedOffer.id}`, {
+      const response = await fetch(`${requestURL}/api/offer/update-offer?id=${editedOffer.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

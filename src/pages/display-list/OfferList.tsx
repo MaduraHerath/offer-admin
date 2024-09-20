@@ -1,6 +1,9 @@
 import { Box, Button } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import config from '../../config/config';
+
+const requestURL = config.apiUrl;
 
 const OfferList = () => {
   const [offers, setOffers] = useState([]);  // To store fetched offers
@@ -17,7 +20,7 @@ const OfferList = () => {
     setError(null);
     
     try {
-      const response = await fetch(`http://localhost:80/api/offer/get-offers-by-category?category=${selectedCategory}`);  // Replace with your API endpoint
+      const response = await fetch(`${requestURL}/api/offer/get-offers-by-category?category=${selectedCategory}`);  // Replace with your API endpoint
       if (!response.ok) {
         throw new Error('Failed to fetch offers');
       }
@@ -33,7 +36,7 @@ const OfferList = () => {
   // Fetch categories on component mount
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:80/api/category/get-all-categories');  // Replace with your API endpoint
+      const response = await fetch(`${requestURL}/api/category/get-all-categories`);  // Replace with your API endpoint
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }

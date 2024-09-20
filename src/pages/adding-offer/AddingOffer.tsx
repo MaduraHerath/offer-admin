@@ -6,8 +6,9 @@ import type { SubmitHandler, FieldValues } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
 import { RestEndPoints } from "../../enums/rest-endpoints.enums";
 import { useNavigate } from 'react-router-dom';
+import config from '../../config/config';
 
-const requestURL = 'http://localhost:80';
+const requestURL = config.apiUrl;
 
 interface Subcategory {
   icon: string,
