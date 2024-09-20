@@ -1,5 +1,5 @@
 const config = {
-    apiUrl: "http://localhost:80"
+    apiUrl: "https://meta-mydoc-backend.xyz"
   };
   
   export default config;
